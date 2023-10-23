@@ -25,7 +25,7 @@ selected_year = st.sidebar.selectbox('Year', list(reversed(range(1950,2024))))
 # Web Scraping of NBA player Stats 
 ################ 
 
-@st.cache_data(persist=True)
+
 
 def load_data(year):
     url = "https://www.basketball-reference.com/leagues/NBA_" + str(year) + "_per_game.html"
@@ -36,6 +36,8 @@ def load_data(year):
     playerstats = raw.drop(['Rk'], axis=1)
     return playerstats
 playerstats = load_data(selected_year)
+
+@st.cache_data(persist=True)
 
 columns_to_convert = ['G', 'GS', 'MP', 'FG', 'FGA','FG%', '3P', '3PA', '3P%','2P', '2PA','2P%', 'FT', 'FTA','FT%', 'ORB', 'DRB', 'TRB','eFG%', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
 # Use pd.to_numeric to convert the specified columns to float

@@ -8,7 +8,7 @@ from PIL import Image
 import re
 from bs4 import BeautifulSoup
 import requests
-from selenium import webdriver
+
 
 
 st.title('NBA Player Statistic Explorer')

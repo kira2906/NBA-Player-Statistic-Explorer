@@ -37,8 +37,6 @@ def load_data(year):
     return playerstats
 playerstats = load_data(selected_year)
 
-@st.cache_data(persist=True)
-
 columns_to_convert = ['G', 'GS', 'MP', 'FG', 'FGA','FG%', '3P', '3PA', '3P%','2P', '2PA','2P%', 'FT', 'FTA','FT%', 'ORB', 'DRB', 'TRB','eFG%', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
 # Use pd.to_numeric to convert the specified columns to float
 playerstats[columns_to_convert] = playerstats[columns_to_convert].apply(pd.to_numeric, errors='coerce')

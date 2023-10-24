@@ -575,20 +575,17 @@ unique_pos = ['C','PF','SF','PG','SG']
 selected_pos = st.multiselect('Position', unique_pos, selected_pos)
 if st.checkbox("Show Position Glossary"):
     st.markdown('''
-- **Point Guard (PG):** \n
-\t The point guard, often referred to as the "floor general," is responsible for running the team's offense. They are known for their ball-handling skills, passing, and court vision. Point guards set up plays, distribute the ball to teammates, and often take on a leadership role.
+- **Point Guard (PG):** The point guard, often referred to as the "floor general," is responsible for running the team's offense. 
+\n They are known for their ball-handling skills, passing, and court vision. 
+\n Point guards set up plays, distribute the ball to teammates, and often take on a leadership role.
 
-- **Shooting Guard (SG):** \n
-\t The shooting guard is primarily a scoring position. They are usually one of the team's primary perimeter shooters and are expected to score points from long-range shots (three-pointers) and mid-range jumpers. Shooting guards also play a role in perimeter defense.
+- **Shooting Guard (SG):**  The shooting guard is primarily a scoring position. They are usually one of the team's primary perimeter shooters and are expected to score points from long-range shots (three-pointers) and mid-range jumpers. Shooting guards also play a role in perimeter defense.
 
-- **Small Forward (SF):** \n
-\t Small forwards are versatile players who can contribute both offensively and defensively. They often play on the wing and are expected to score, rebound, and defend. Small forwards can be a crucial part of a team's transition game and can play a "point forward" role if they have strong playmaking skills.
+- **Small Forward (SF):**  Small forwards are versatile players who can contribute both offensively and defensively. They often play on the wing and are expected to score, rebound, and defend. Small forwards can be a crucial part of a team's transition game and can play a "point forward" role if they have strong playmaking skills.
 
-- **Power Forward (PF):** \n
-\t Power forwards are known for their physicality and strength. They play close to the basket and are responsible for scoring in the post, grabbing rebounds, and providing interior defense. Some power forwards also have the ability to stretch the floor with their shooting.
+- **Power Forward (PF):** Power forwards are known for their physicality and strength. They play close to the basket and are responsible for scoring in the post, grabbing rebounds, and providing interior defense. Some power forwards also have the ability to stretch the floor with their shooting.
 
-- **Center (C):** \n
-\t The center is typically the tallest player on the team and plays near the basket. They are essential for shot-blocking, rebounding, and scoring in the paint. Centers are often the anchors of a team's defense, protecting the rim and altering opponents' shots.
+- **Center (C):** The center is typically the tallest player on the team and plays near the basket. They are essential for shot-blocking, rebounding, and scoring in the paint. Centers are often the anchors of a team's defense, protecting the rim and altering opponents' shots.
 ''')
 
 

@@ -10,14 +10,39 @@ from bs4 import BeautifulSoup
 import requests
 
 
-
-
 st.markdown("<h1 style='text-align: center;'>NBA Player Statistic Explorer</h1>", unsafe_allow_html=True)
+image = 'https://pngimg.com/uploads/nba/nba_PNG8.png'
+st.markdown(
+    f'<div style="display: flex; justify-content: center;"><img src="{image}" width="200" /></div>',
+    unsafe_allow_html=True
+)
+st.markdown("<h4 style='text-align: center;'>Developed by Raihan Rasheed</h4>", unsafe_allow_html=True)
 st.markdown("---")
 st.markdown(''' 
-This application performs simple webscraping of NBA players stats data!
-* **Python libraries used:** base64, pandas, streamlit, seaborn, PIL, BeautifulSoup, re, requests
-* **Data Source:** [Baskerball-reference.com](https://www.basketball-reference.com/)
+Welcome to the NBA Player Statistic Explorer, a powerful tool for basketball enthusiasts and data analysts! This application performs web scraping of NBA player statistics from [Basketball-Reference](https://www.basketball-reference.com/), providing you with a wealth of information on player performance.
+
+### Features:
+* Explore NBA player statistics from various seasons.
+* Compare player statistics across different years.
+* Analyze team performance with various metrics.
+
+### Python Libraries Used:
+This application is powered by a set of Python libraries:
+* `pandas`: Used for data manipulation and analysis.
+* `seaborn` and `matplotlib`: Utilized for data visualization, allowing us to create insightful charts and plots.
+* `BeautifulSoup`: Enables us to scrape data from the web.
+* `requests`: Used to fetch data from web pages.
+
+### Data Source:
+We retrieve NBA player statistics from [Basketball-Reference](https://www.basketball-reference.com/), a reputable source for basketball data. The data includes player performance, team statistics, and much more.
+
+### How to Use:
+1. Select the year you want to explore using the dropdown menu.
+2. Choose your preferred analysis option from the radio buttons.
+3. Enjoy in-depth insights into NBA player and team statistics!
+
+Get ready to dive into the world of NBA data and uncover fascinating insights. Explore player stats, track team performance, and gain a deeper understanding of the game. Let's start analyzing the numbers and discovering the true MVPs of the NBA!
+         
             ''')
 
 st.markdown('## Select the year you want to explore')
@@ -79,6 +104,8 @@ if st.checkbox('Show Team Stats of the selected Year'):
             * TOV -- Turnovers Per Game
             * PF -- Personal Fouls Per Game
             * PTS -- Points Per Game''')
+@st.cache_data(persist=True)
+
 
 
 ################# Web Scraping of NBA player Stats ################ 
@@ -148,30 +175,67 @@ Please note that some teams have changed their names or relocated during this pe
 df_selected_team = playerstats[(playerstats.Tm.isin(selected_team)) ]
 
 
-################# Team Plots ################# 
+################# Team Plots  ################# 
+st.markdown("## Compare Team Performances")
 
-if st.radio("Select Team Performance Statistics", ("Top 10 Total Points scored by Team", "Top 10 Total and Conversion Rate of 3P per Team ")) == "Top 10 Total Points scored by Team":
-    # Calculate total points scored by players for each team
-    team_points = df_selected_team.groupby('Tm')['PTS'].sum().reset_index()
-    # Sort the teams by total points in descending order
-    team_points = team_points.sort_values(by='PTS', ascending=False)
-    # Select the top 10 teams
-    top_10_teams = team_points.head(10)
-    # Create a Seaborn bar chart
+selected_option = st.radio("Select Team Performance Statistics", (
+    "Top 10 Total Points scored by Team",
+    "Top 10 Total and Conversion Rate of 3P per Team",
+    "Top 10 Total And Conversion Rate of 2P per Team",
+    "Top 10 Total and Conversion Rate of FTA and FT% per Team",
+    "Top 10 Total ORB AND DRB per Team",
+    "Top 10 Total STL BLK per Team",
+    "Top 10 Total TOV AND PF per Team",
+    "Bottom 10 Total Points scored by Team"
+))
+
+if selected_option == "Top 10 Total Points scored by Team":
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    # Send an HTTP GET request to the URL
+    response = requests.get(url)
+    # Parse the HTML content of the page using Beautiful Soup
+    soup = BeautifulSoup(response.content, "html.parser")
+    # Find the table based on the id attribute
+    table = soup.find("table", {"id": "totals-team"})
+    second_table = soup.find("table", {"id": "per_game-team"})
+    
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 3P in descending order and select the top 10 teams
+    top_10 = df_team.sort_values(by='PTS', ascending=False).head(10)
+
+    # Create a bar plot for 3P
     plt.figure(figsize=(12, 6))
-    ax = sns.barplot(data=top_10_teams, x='Tm', y='PTS')
-    plt.xlabel('Team')
-    plt.ylabel('Total Points Scored in')
-    plt.title('Top 10 Teams by Total Points Scored in ' + str(selected_year))
-    # Rotate x-axis labels for better readability
-    plt.xticks(rotation=45, ha='right')
-    # Display numerical values on the bars
-    for p in ax.patches:
-        ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')    
-    # Show the plot in Streamlit
+    bars = plt.barh(top_10['Team'], top_10['PTS'])
+    plt.xlabel('Total Points (PTS)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Total Points (PTS)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
     st.pyplot(plt)
     
-else : 
+elif selected_option == "Top 10 Total and Conversion Rate of 3P per Team":
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    # Send an HTTP GET request to the URL
+    response = requests.get(url)
+    # Parse the HTML content of the page using Beautiful Soup
+    soup = BeautifulSoup(response.content, "html.parser")
+    # Find the table based on the id attribute
+    table = soup.find("table", {"id": "totals-team"})
+    second_table = soup.find("table", {"id": "per_game-team"})
+    
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
     # Sort the DataFrame by 3P in descending order and select the top 10 teams
     top_10_3P = df_team.sort_values(by='3P', ascending=False).head(10)
 
@@ -210,7 +274,279 @@ else :
     # Remove grid lines
     plt.grid(False)
     st.pyplot(plt)
+    
+elif selected_option == "Top 10 Total And Conversion Rate of 2P per Team": 
+    # Add code to fetch and plot "Top 10 Total And Conversion Rate of 2P per Team"
+    # Fetch the data from the website
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table", {"id": "totals-team"})
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 2P in descending order and select the top 10 teams
+    top_10_2P = df_team.sort_values(by='2P', ascending=False).head(10)
 
+    # Create a bar plot for 2P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_2P['Team'], top_10_2P['2P'], color='lightgreen')
+    plt.xlabel('2-Point Field Goals (2P)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Most 2-Point Field Goals (2P)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
+    st.pyplot(plt)
+    
+    # Sort the DataFrame by 3P% in descending order and select the top 10 teams
+    top_10_2P_percent = df_team.sort_values(by='2P%', ascending=False).head(10)
+
+    # Create a bar plot for 3P%
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_2P_percent['Team'], top_10_2P_percent['2P%'], color='lightcoral')
+    plt.xlabel('3-Point Field Goal Percentage (2P%)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest 2-Point Field Goal Percentage (2P%)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height() / 2, f'{bar.get_width():.2f}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    # Remove grid lines
+    plt.grid(False)
+    st.pyplot(plt)
+    
+elif selected_option == "Top 10 Total and Conversion Rate of FTA and FT% per Team":   
+    # Add code to fetch and plot "Top 10 Total And Conversion Rate of 2P per Team"
+    # Fetch the data from the website
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table", {"id": "totals-team"})
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 2P in descending order and select the top 10 teams
+    top_10_FTA = df_team.sort_values(by='FTA', ascending=False).head(10)
+
+    # Create a bar plot for 2P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_FTA['Team'], top_10_FTA['FTA'], color='lightgreen')
+    plt.xlabel('Free Throws Attempt (FTA)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Most Free Throws Attempt (FTA)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
+    st.pyplot(plt)
+    
+    # Sort the DataFrame by 3P% in descending order and select the top 10 teams
+    top_10_FTA_percent = df_team.sort_values(by='FT%', ascending=False).head(10)
+
+    # Create a bar plot for 3P%
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_FTA_percent['Team'], top_10_FTA_percent['FT%'], color='lightcoral')
+    plt.xlabel('Free Throw Conversion (FT%)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Free Throw Conversion (FT%)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height() / 2, f'{bar.get_width():.2f}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    # Remove grid lines
+    plt.grid(False)
+    st.pyplot(plt)   
+
+elif selected_option == "Top 10 Total ORB AND DRB per Team":
+    # Add code to fetch and plot "Top 10 Total And Conversion Rate of 2P per Team"
+    # Fetch the data from the website
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table", {"id": "totals-team"})
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 2P in descending order and select the top 10 teams
+    top_10_ORB = df_team.sort_values(by='ORB', ascending=False).head(10)
+
+    # Create a bar plot for 2P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_ORB['Team'], top_10_ORB['ORB'], color='lightgreen')
+    plt.xlabel('Offensive Rebound (ORB)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Offensive Rebounds (ORB)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
+    st.pyplot(plt)
+    
+    # Sort the DataFrame by 3P% in descending order and select the top 10 teams
+    top_10_DRB = df_team.sort_values(by='DRB', ascending=False).head(10)
+
+    # Create a bar plot for 3P%
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_DRB['Team'], top_10_DRB['DRB'], color='lightcoral')
+    plt.xlabel('Defensive Rebound (DRB)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Defensive Rebounds (DRB)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    # Remove grid lines
+    plt.grid(False)
+    st.pyplot(plt)   
+    
+elif selected_option == "Top 10 Total STL BLK per Team":
+    # Fetch the data from the website
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table", {"id": "totals-team"})
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 2P in descending order and select the top 10 teams
+    top_10_STL = df_team.sort_values(by='STL', ascending=False).head(10)
+
+    # Create a bar plot for 2P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_STL['Team'], top_10_STL['STL'], color='lightgreen')
+    plt.xlabel('Steal (STL)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Steals (STL)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
+    st.pyplot(plt)
+    
+    # Sort the DataFrame by 3P% in descending order and select the top 10 teams
+    top_10_BLK = df_team.sort_values(by='BLK', ascending=False).head(10)
+
+    # Create a bar plot for 3P%
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_BLK['Team'], top_10_BLK['BLK'], color='lightcoral')
+    plt.xlabel('Block (BLK)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Blocks (BLK)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height() / 2, f'{bar.get_width():.2f}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    # Remove grid lines
+    plt.grid(False)
+    st.pyplot(plt)    
+    
+elif selected_option == "Top 10 Total TOV AND PF per Team":  
+     # Fetch the data from the website
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table", {"id": "totals-team"})
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 2P in descending order and select the top 10 teams
+    top_10_TOV = df_team.sort_values(by='TOV', ascending=False).head(10)
+
+    # Create a bar plot for 2P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_TOV['Team'], top_10_TOV['TOV'], color='lightgreen')
+    plt.xlabel('Turnover (TOV)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Turnovers (TOV)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 5, bar.get_y() + bar.get_height() / 2, f'{int(bar.get_width())}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    plt.grid(False)
+    st.pyplot(plt)
+    
+    # Sort the DataFrame by 3P% in descending order and select the top 10 teams
+    top_10_PF = df_team.sort_values(by='PF', ascending=False).head(10)
+
+    # Create a bar plot for 3P%
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(top_10_PF['Team'], top_10_PF['PF'], color='lightcoral')
+    plt.xlabel('Personal Foul (PF)')
+    plt.ylabel('Team')
+    plt.title('Top 10 Teams with the Highest Personal Fouls (PF)')
+
+    # Annotate the values
+    for bar in bars:
+        plt.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height() / 2, f'{bar.get_width():.2f}', va='center')
+
+    # Display the plot
+    plt.tight_layout()
+    # Remove grid lines
+    plt.grid(False)
+    st.pyplot(plt)
+    
+elif selected_option == "Bottom 10 Total Points scored by Team":
+    url = "https://www.basketball-reference.com/leagues/NBA_" + str(selected_year) + ".html#all_per_game_team-opponent"
+    # Send an HTTP GET request to the URL
+    response = requests.get(url)
+    # Parse the HTML content of the page using Beautiful Soup
+    soup = BeautifulSoup(response.content, "html.parser")
+    # Find the table based on the id attribute
+    table = soup.find("table", {"id": "totals-team"})
+    second_table = soup.find("table", {"id": "per_game-team"})
+    
+    df_team = pd.read_html(str(table))[0]
+    df_team.set_index('Rk', inplace=True)
+    df_team = df_team[~df_team['Team'].str.contains('League Average')]
+    
+    # Sort the DataFrame by 3P in descending order and select the top 10 teams
+    bot_10 = df_team.sort_values(by='PTS', ascending=False).tail(10)
+
+    # Create a bar plot for 3P
+    plt.figure(figsize=(12, 6))
+    bars = plt.barh(bot_10['Team'], bot_10['PTS'])
+    plt.xlabel('Total Points (PTS)')
+    plt.ylabel('Team')
+    plt.title('Bot 10 Teams with the Highest Total Points (PTS)')  
+          
 ################ 
 # Download NBA player stats data
 # https://discuss.streamlit.io/t/how-to-download-file-in-streamlit/1806
@@ -273,6 +609,8 @@ if st.checkbox("Show Position Glossary"):
 
 
 st.markdown("## Select Players for Individual Comparision")
+st.markdown("You may choose more than one player of your choice to compare performances between them.")
+st.markdown( "*Note: The data will be shown only for the year selected earlier*")
 selected_players = st.multiselect('Select Player(s)', df_selected_team['Player'].unique())
 
 
@@ -354,3 +692,4 @@ if selected_players:
             ax.annotate(f'{p.get_height():.2f}', (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')    
         # Show the plot in Streamlit
         st.pyplot(plt)          
+

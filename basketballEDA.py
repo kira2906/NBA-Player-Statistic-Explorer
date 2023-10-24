@@ -104,7 +104,6 @@ if st.checkbox('Show Team Stats of the selected Year'):
             * TOV -- Turnovers Per Game
             * PF -- Personal Fouls Per Game
             * PTS -- Points Per Game''')
-@st.cache_data(persist=True)
 
 
 

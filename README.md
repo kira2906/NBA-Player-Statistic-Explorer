@@ -6,9 +6,7 @@
 
 <h2>Key Features</h2>
 
-*   **Player Statistics:** Access and analyze detailed statistics for NBA players including metrics such as points scored rebounds assists steals blocks field goal percentage and more. Users can search for specific players and visualize their performance over time.
-*   **Team Performance:** Explore team performance metrics including win-loss records points scored points allowed and various other team statistics. This information helps users assess how well their favorite teams are performing during the NBA season.
-*   **Standings:** Provides NBA team standings for both conferences (Eastern and Western) and their respective divisions. Users can track the rankings of their favorite teams and understand the distribution of wins and losses.
+*   **Player Statistics:** Access and analyze detailed statistics for NBA players including metrics such as points scored rebounds assists steals blocks field goal percentage and more. Users can search and compare for specific players and visualize their performance over time.
 *   **Interactive Data Visualization:** The project leverages data visualization libraries such as Matplotlib and Seaborn to create interactive charts and graphs. Users can explore player and team performance visually making it easier to spot trends and patterns.
 *   **Streamlit App:** The entire project is deployed as a Streamlit web application making it accessible via a web browser. Users can interact with the app's user-friendly interface input their preferences and view statistics and visualizations in real-time.
 

@@ -8,11 +8,9 @@ from PIL import Image
 import re
 from bs4 import BeautifulSoup
 import requests
-from selenium import webdriver
-import time
 
-# Add a delay of a few seconds between requests
-time.sleep(2)  # Sleep for 2 seconds
+
+
 
 st.markdown("<h1 style='text-align: center;'>NBA Player Statistic Explorer</h1>", unsafe_allow_html=True)
 st.markdown("---")

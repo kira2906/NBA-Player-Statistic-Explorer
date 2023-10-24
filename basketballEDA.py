@@ -575,9 +575,7 @@ unique_pos = ['C','PF','SF','PG','SG']
 selected_pos = st.multiselect('Position', unique_pos, selected_pos)
 if st.checkbox("Show Position Glossary"):
     st.markdown('''
-- **Point Guard (PG):** The point guard, often referred to as the "floor general," is responsible for running the team's offense. 
-\n They are known for their ball-handling skills, passing, and court vision. 
-\n Point guards set up plays, distribute the ball to teammates, and often take on a leadership role.
+- **Point Guard (PG):** The point guard, often referred to as the "floor general," is responsible for running the team's offense. They are known for their ball-handling skills, passing, and court vision. Point guards set up plays, distribute the ball to teammates, and often take on a leadership role.
 
 - **Shooting Guard (SG):**  The shooting guard is primarily a scoring position. They are usually one of the team's primary perimeter shooters and are expected to score points from long-range shots (three-pointers) and mid-range jumpers. Shooting guards also play a role in perimeter defense.
 
@@ -606,7 +604,7 @@ if st.checkbox("Show Position Glossary"):
 
 st.markdown("## Select Players for Individual Comparision")
 st.markdown("You may choose more than one player of your choice to compare performances between them.")
-st.markdown( "*Note: The data will be shown only for the year selected earlier*")
+st.markdown( "*Note: The data will be shown only for the year selected earlier, selected teams and positions.*")
 selected_players = st.multiselect('Select Player(s)', df_selected_team['Player'].unique())
 
 
